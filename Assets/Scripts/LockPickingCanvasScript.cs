@@ -1,6 +1,4 @@
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class LockPickingCanvasScript : MonoBehaviour
@@ -14,11 +12,18 @@ public class LockPickingCanvasScript : MonoBehaviour
 
 
     int ToolPosition;
+    float PinsInitLevel;
     bool Unlocked;
-    
     bool up;
 
-    float PinsInitLevel;
+
+    [SerializeField]
+    float SpringSpeed;
+    
+    [SerializeField]
+    float PinSpeed;
+    [SerializeField]
+    float PinLevelTolerance;    
 
 
 
@@ -37,7 +42,7 @@ public class LockPickingCanvasScript : MonoBehaviour
         {
             pin.transform.GetChild(0).transform.position = new Vector3(
                 pin.transform.GetChild(0).transform.position.x,
-                pin.transform.GetChild(0).transform.position.y + Random.Range(0.24f,-0.24f),
+                pin.transform.GetChild(0).transform.position.y + UnityEngine.Random.Range(0.24f,-0.24f),
                 pin.transform.GetChild(0).transform.position.z
             );
         }
@@ -50,6 +55,8 @@ public class LockPickingCanvasScript : MonoBehaviour
 
     void Update()
     {
+
+        // 
         // If key is on the 5th pin lock is picked
         if (ToolPosition == 5)
         {
@@ -63,11 +70,11 @@ public class LockPickingCanvasScript : MonoBehaviour
         // push the key inwards
         if(Input.GetKeyDown("d") && !Unlocked)
         {
-            if (PinsRefArray[ToolPosition-1].transform.GetChild(0).transform.position.y <= TargetLineRef.transform.position.y + 0.01f 
-            && PinsRefArray[ToolPosition-1].transform.GetChild(0).transform.position.y >= TargetLineRef.transform.position.y - 0.01f )
+            // if pin level matchs unlocking level, goto the nect pin
+            if (PinsRefArray[ToolPosition-1].transform.GetChild(0).transform.position.y <= TargetLineRef.transform.position.y + PinLevelTolerance 
+            && PinsRefArray[ToolPosition-1].transform.GetChild(0).transform.position.y >= TargetLineRef.transform.position.y - PinLevelTolerance )
             {
                 ShiftPickingTool(1);
-                
             }
         }
 
@@ -78,78 +85,108 @@ public class LockPickingCanvasScript : MonoBehaviour
             ShiftPickingTool(-1);
         }
 
-        if (!Unlocked)
-        { 
-            // push the pin up
-            if (Input.GetKeyDown("w"))
-            {
-                print("111");
-                up = true;
-            }
 
-
-            // let the pin down
-            if (Input.GetKeyUp("w"))
-            {
-                print("222");
-                up = false;
-            }
-                
+        // push the pin up
+        if (Input.GetKeyDown("w"))
+        {
+            up = true;
         }
 
-
-
-        // w key pressed
-        if (up)
+        // let the pin down
+        if (Input.GetKeyUp("w"))
         {
-            // set pin transform
-            if(PinsRefArray[ToolPosition-1].transform.position.y <= PinsInitLevel + 1f)
-            {
-                PinsRefArray[ToolPosition-1].transform.position = new Vector3(
-                    PinsRefArray[ToolPosition-1].transform.position.x,
-                    PinsRefArray[ToolPosition-1].transform.position.y + 0.005f,
-                    PinsRefArray[ToolPosition-1].transform.position.z
-                );
-            }
+            up = false;
+        }        
 
-            // set spring scale
-            if (SpringRefArray[ToolPosition-1].transform.localScale.y > 0.25f)
+
+            
+        // w key pressed
+        if (up && !Unlocked)
+        {
+            if (ToolPosition < 5)
             {
-                SpringRefArray[ToolPosition-1].transform.localScale = new Vector3(
-                    SpringRefArray[ToolPosition-1].transform.localScale.x,
-                    SpringRefArray[ToolPosition-1].transform.localScale.y - 0.0048f,
-                    SpringRefArray[ToolPosition-1].transform.localScale.z
-                );
+                // set pin transform
+                if(PinsRefArray[ToolPosition-1].transform.position.y <= PinsInitLevel + 1f)
+                {
+                    PinsRefArray[ToolPosition-1].transform.position = new Vector3(
+                        PinsRefArray[ToolPosition-1].transform.position.x,
+                        PinsRefArray[ToolPosition-1].transform.position.y + PinSpeed,
+                        PinsRefArray[ToolPosition-1].transform.position.z
+                    );
+                }
+
+                // set spring scale
+                if (SpringRefArray[ToolPosition-1].transform.localScale.y > 0.25f)
+                {
+                    SpringRefArray[ToolPosition-1].transform.localScale = new Vector3(
+                        SpringRefArray[ToolPosition-1].transform.localScale.x,
+                        SpringRefArray[ToolPosition-1].transform.localScale.y - SpringSpeed,
+                        SpringRefArray[ToolPosition-1].transform.localScale.z
+                    );
+                }
             }
         }
 
 
 
         // w key released
-        if(!up && ToolPosition <= 4)
+        if(!up)
         {
-            // set pin transform
-            if(PinsRefArray[ToolPosition-1].transform.position.y >= PinsInitLevel + 0.18f)
+            if (ToolPosition < 5)
             {
-                PinsRefArray[ToolPosition-1].transform.position = new Vector3(
-                    PinsRefArray[ToolPosition-1].transform.position.x,
-                    PinsRefArray[ToolPosition-1].transform.position.y - 0.005f,
-                    PinsRefArray[ToolPosition-1].transform.position.z
-                );
+                // set pin transform
+                if(PinsRefArray[ToolPosition-1].transform.position.y >= PinsInitLevel + 0.18f)
+                {
+                    PinsRefArray[ToolPosition-1].transform.position = new Vector3(
+                        PinsRefArray[ToolPosition-1].transform.position.x,
+                        PinsRefArray[ToolPosition-1].transform.position.y - PinSpeed,
+                        PinsRefArray[ToolPosition-1].transform.position.z
+                    );
 
+                }
+
+                // set spring scale
+                if (SpringRefArray[ToolPosition-1].transform.localScale.y < 1f)
+                {
+                    SpringRefArray[ToolPosition-1].transform.localScale = new Vector3(
+                        SpringRefArray[ToolPosition-1].transform.localScale.x,
+                        SpringRefArray[ToolPosition-1].transform.localScale.y + SpringSpeed,
+                        SpringRefArray[ToolPosition-1].transform.localScale.z
+                    );
+                }
             }
+        }
 
-            // set spring scale
-            if (SpringRefArray[ToolPosition-1].transform.localScale.y < 1f)
+
+
+        // let the pin and spring come down if tool pulled back
+        foreach (var pin in PinsRefArray)
+        {
+            var Pindex = Array.IndexOf(PinsRefArray, pin);
+            if (Pindex > ToolPosition - 1 && pin.transform.position.y >= PinsInitLevel + 0.18f)
             {
-                SpringRefArray[ToolPosition-1].transform.localScale = new Vector3(
-                    SpringRefArray[ToolPosition-1].transform.localScale.x,
-                    SpringRefArray[ToolPosition-1].transform.localScale.y + 0.0048f,
-                    SpringRefArray[ToolPosition-1].transform.localScale.z
+                pin.transform.position = new Vector3(
+                    pin.transform.position.x,
+                    pin.transform.position.y - PinSpeed,
+                    pin.transform.position.z
+                );
+            }
+        }
+        
+        foreach (var spring in SpringRefArray)
+        {
+            var Sindex = Array.IndexOf(SpringRefArray, spring);
+            if (Sindex > ToolPosition - 1 && spring.transform.localScale.y < 1f)
+            {
+                spring.transform.localScale = new Vector3(
+                    spring.transform.localScale.x,
+                    spring.transform.localScale.y + SpringSpeed,
+                    spring.transform.localScale.z
                 );
             }
         }
 
+        print(up);
 
     }
 
@@ -187,7 +224,6 @@ public class LockPickingCanvasScript : MonoBehaviour
             );
         }
 
-        // print(ToolPosition);
 
     }
 

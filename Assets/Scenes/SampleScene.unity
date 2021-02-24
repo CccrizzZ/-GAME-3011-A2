@@ -939,6 +939,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7452266294077949987, guid: 77d7b5b6b604bda4baed2d424182e3e6, type: 3}
+      propertyPath: PinSpeed
+      value: 0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: -7452266294077949987, guid: 77d7b5b6b604bda4baed2d424182e3e6, type: 3}
+      propertyPath: SpringSpeed
+      value: 0.0048
+      objectReference: {fileID: 0}
+    - target: {fileID: -7452266294077949987, guid: 77d7b5b6b604bda4baed2d424182e3e6, type: 3}
+      propertyPath: PinLevelTolerance
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 816328141455125296, guid: 77d7b5b6b604bda4baed2d424182e3e6, type: 3}
       propertyPath: m_Name
       value: LockPickingCanvas
