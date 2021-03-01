@@ -8,6 +8,8 @@ public class LockPickingCanvasScript : MonoBehaviour
     public GameObject TargetLineRef;
     public GameObject[] PinsRefArray;
     public GameObject[] SpringRefArray;
+    public GameObject startLine;
+    public GameObject UnlockButton;
 
 
 
@@ -23,28 +25,35 @@ public class LockPickingCanvasScript : MonoBehaviour
     [SerializeField]
     float PinSpeed;
     [SerializeField]
-    float PinLevelTolerance;    
+    float PinLevelTolerance;
 
+    int TotalPinSlot;
 
+    
+    
 
     void Start()
     {
+
+        TotalPinSlot = PinsRefArray.Length + 1;
+
+
         ToolPosition = 1;
         Unlocked = false;
 
 
-        // get pin level
-        PinsInitLevel = PinsRefArray[0].transform.position.y;
 
 
         // randomize unlock level for each pin
         foreach (var pin in PinsRefArray)
         {
+            print("Adj Level");
             pin.transform.GetChild(0).transform.position = new Vector3(
                 pin.transform.GetChild(0).transform.position.x,
-                pin.transform.GetChild(0).transform.position.y + UnityEngine.Random.Range(0.24f,-0.24f),
+                pin.transform.GetChild(0).transform.position.y + UnityEngine.Random.Range(5f,-5f),
                 pin.transform.GetChild(0).transform.position.z
             );
+            print(pin.transform.GetChild(0).transform.position.y);
         }
         
 
@@ -55,15 +64,22 @@ public class LockPickingCanvasScript : MonoBehaviour
 
     void Update()
     {
+        // get pin level
+        PinsInitLevel = startLine.transform.position.y;
+        
 
         // 
         // If key is on the 5th pin lock is picked
-        if (ToolPosition == 5)
+        if (ToolPosition == TotalPinSlot)
         {
             Unlocked = true;
-        }else
+            UnlockButton.SetActive(true);
+        }
+        else
         {
             Unlocked = false;
+            UnlockButton.SetActive(false);
+
         }
 
 
@@ -103,7 +119,7 @@ public class LockPickingCanvasScript : MonoBehaviour
         // w key pressed
         if (up && !Unlocked)
         {
-            if (ToolPosition < 5)
+            if (ToolPosition < TotalPinSlot)
             {
                 // set pin transform
                 if(PinsRefArray[ToolPosition-1].transform.position.y <= PinsInitLevel + 1f)
@@ -129,10 +145,11 @@ public class LockPickingCanvasScript : MonoBehaviour
 
 
 
+
         // w key released
         if(!up)
         {
-            if (ToolPosition < 5)
+            if (ToolPosition < TotalPinSlot)
             {
                 // set pin transform
                 if(PinsRefArray[ToolPosition-1].transform.position.y >= PinsInitLevel + 0.18f)
@@ -159,9 +176,13 @@ public class LockPickingCanvasScript : MonoBehaviour
 
 
 
+
+
+
         // let the pin and spring come down if tool pulled back
         foreach (var pin in PinsRefArray)
         {
+            // index of pin
             var Pindex = Array.IndexOf(PinsRefArray, pin);
             if (Pindex > ToolPosition - 1 && pin.transform.position.y >= PinsInitLevel + 0.18f)
             {
@@ -185,10 +206,13 @@ public class LockPickingCanvasScript : MonoBehaviour
                 );
             }
         }
-
-        print(up);
-
     }
+
+
+
+
+
+
 
 
 
@@ -196,17 +220,16 @@ public class LockPickingCanvasScript : MonoBehaviour
     void ShiftPickingTool(int diff)
     {
         // go next
-        if (ToolPosition + 1 <= 5 && diff == 1)
+        if (ToolPosition + 1 <= TotalPinSlot && diff == 1)
         {
             // set tool position
             ToolPosition += diff;
 
             // set tool transform
-            ToolRef.transform.position = new Vector3(
-                ToolRef.transform.position.x + 0.8f,
-                ToolRef.transform.position.y,
-                ToolRef.transform.position.z
-            );
+            ToolRef.transform.position += transform.right * 0.8f;
+
+
+
         }
         
 
@@ -215,17 +238,9 @@ public class LockPickingCanvasScript : MonoBehaviour
         {
             // set tool position
             ToolPosition += diff;
-
+        
             // set tool transform
-            ToolRef.transform.position = new Vector3(
-                ToolRef.transform.position.x - 0.8f,
-                ToolRef.transform.position.y,
-                ToolRef.transform.position.z
-            );
+            ToolRef.transform.position -= transform.right * 0.8f;
         }
-
-
     }
-
-
 }

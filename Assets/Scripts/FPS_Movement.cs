@@ -13,17 +13,31 @@ public class FPS_Movement : MonoBehaviour
     Vector3 velocity;
     bool isGrounded;
 
-    bool canMove;
+    public bool canMove;
 
     public Transform GroundCheck;
     public float GroundDistance = 0.4f;
     public LayerMask groundMask;
 
 
+    public void SetCanMove(bool can)
+    {
+        canMove = can;
+    }
+
+    public bool GetCanMove()
+    {
+        return canMove;
+    }
+
+
+
     private void Start()
     {
-        canMove = false;
+        canMove = true;
     }
+
+
 
 
     void Update()
@@ -63,6 +77,11 @@ public class FPS_Movement : MonoBehaviour
         // apply gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+
+
+ 
+
 
     
     }
